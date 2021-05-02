@@ -1,0 +1,32 @@
+{
+  "name": "cmsdata-client",
+  "version": "1.0.0",
+  "description": "A JavaScript client for CMS Data",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index",
+    "doc": "jsdoc -d docs index.js",
+    "test": "tap --no-coverage",
+    "test:report": "tap --coverage-report=html index.test.js"
+  },
+  "keywords": [
+    "cms",
+    "cms client",
+    "medical data"
+  ],
+  "author": "hawyar <hawyarfa@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "cross-fetch": "^3.1.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^18.0.0",
+    "@rollup/plugin-node-resolve": "^11.2.1",
+    "eslint": "^7.25.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "jsdoc": "^3.6.6",
+    "rollup": "^2.46.0",
+    "tap": "^15.0.6"
+  }
+}
