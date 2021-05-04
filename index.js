@@ -10,7 +10,7 @@ class CMSClient {
     this.resourceId = resourceId;
     this.isOutdated = false;
     this.lastModified = '';
-    this.type = options?.output || 'json';
+    this.type = options.output || 'json';
     this.url = `https://data.cms.gov/resource/${this.resourceId}.${this.type}`;
     this.fetchOptions = {
       ...options,
