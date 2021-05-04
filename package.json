@@ -2,6 +2,10 @@
   "name": "cmsdata-client",
   "version": "1.0.0",
   "description": "A JavaScript client for CMS Data",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/consensusnetworks/cmsdata-client"
+  },
   "main": "index.js",
   "scripts": {
     "dev": "node index",
