@@ -121,6 +121,8 @@ console.log(dataset.data)
 	- `data`: in **json** or **csv** format
 	- `fields`: dataset column headers
 	- `metadata`: metadata of the dataset, **available only if `includeMetadata` is `true`**
+- `limit`
+	- `number`: limit the number of records to return
 
 
 
