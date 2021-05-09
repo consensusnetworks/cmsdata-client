@@ -71,8 +71,8 @@ class CMSClient {
     return this;
   }
   /**
-   * Sort records by columns in ascending order
-   * @param {(string|string[])} number - Number of records to return, similar to `ORDER` in SQL
+   * Sort records by column(s) in ascending order
+   * @param {(string|string[])} columns - Selected column(s) to sort by, similar to `ORDER` in SQL
    */
   order(columns) {
     if (typeof columns === 'string') {
