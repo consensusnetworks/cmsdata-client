@@ -39,6 +39,9 @@ const CMSClient = createClient("5fr6-cch3", {
 
 // data
 console.log(dataset.data)
+
+// metadata
+console.log(dataset.metadata)
 ```
 
 ### Filter by record
@@ -105,26 +108,29 @@ const dataset = await CMSClient.select(["nppes_provider_first_name", 'npi']).get
 // data
 console.log(dataset.data)
 ```
-
-
-
 ## API
+
  - `createClient`
  	- `resourceId`: `string`, **required**
  	- `options`: `object`, optional
  		- `includeMetadata`: `boolean`, defualt: `false`
  		- `output`: `string`
+- `select`
+	- column(s): `string | string[]`
 - `filter`
 	- column: `string`
 	- resource: `string`
+- `order`
+	- column(s): `string | string[]`
+- `limit`
+	- `number`: `number`
 - `get`
 	- `data`: in **json** or **csv** format
 	- `fields`: dataset column headers
 	- `metadata`: metadata of the dataset, **available only if `includeMetadata` is `true`**
 
 
-
-More information on the [Socrata Open Data Spec](https://dev.socrata.com/)
+More information on the [Socrata Open Data API](https://dev.socrata.com/)
 ## Contributing
 1. Fork it.
 2. Create your feature branch (`git checkout -b feature/fooBar`)

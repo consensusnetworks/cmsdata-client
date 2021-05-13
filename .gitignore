@@ -2,7 +2,6 @@
 node_modules
 build
 .DS_Store
-.vscode
 dist
 docs
 .nyc_output

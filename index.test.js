@@ -1,7 +1,7 @@
 const { test } = require('tap');
 const { createClient } = require('./index');
 
-test('Get all datatset records', async (t) => {
+test('Query all records', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
@@ -9,10 +9,10 @@ test('Get all datatset records', async (t) => {
 
   const dataset = await CMSClient.select().get();
 
-  t.ok(dataset.data, 'New client with datatset');
+  t.ok(dataset.data, 'Returns all records');
 });
 
-test('Get all dataset records with only a specific column', async (t) => {
+test('Query all records with a selected column', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
@@ -20,49 +20,60 @@ test('Get all dataset records with only a specific column', async (t) => {
 
   const dataset = await CMSClient.select('nppes_provider_first_name').get();
 
-  t.ok(dataset.data, 'New client with datatset');
+  t.ok(dataset.data, 'Returns all records with a selected column');
 });
 
-test('Limit the amount of records to return', async (t) => {
+test('Query with limit', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
   });
-
-  const dataset = await CMSClient.limit(22).get();
-
-  t.ok(dataset.data, 'New client with datatset');
+  const dataset = await CMSClient.limit(30).get();
+  t.ok(dataset.data, 'Returns records with specified limit');
 });
 
-test('Get all dataset records with only a specific column and limit', async (t) => {
+test('Query by a column with limit', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
   });
 
   const dataset = await CMSClient.select('npi').limit(22).get();
-
-  t.ok(dataset.data, 'New client with datatset');
+  t.ok(dataset.data, 'Returns limited records with a selected column');
 });
 
-test('Get all dataset records selecting multiple columns', async (t) => {
+test('Query by multiple column', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
   });
 
-  const dataset = await CMSClient.select(['npi', 'nppes_provider_first_name']).get();
-
-  t.ok(dataset.data, 'New client with datatset');
+  const dataset = await CMSClient.select([
+    'npi',
+    'nppes_provider_first_name',
+  ]).get();
+  t.ok(dataset.data, 'Returns all records with multiple selected columns');
 });
 
-test('Get all dataset records with only a specific column', async (t) => {
+test('Query by multiple columns with limit', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
   });
 
-  const dataset = await CMSClient.select(['npi', 'nppes_provider_first_name']).limit(30).get();
+  const dataset = await CMSClient.select(['npi', 'nppes_provider_first_name'])
+    .limit(30)
+    .get();
+  t.ok(dataset.data, 'Returns limited records with multiple selected records');
+});
 
-  t.ok(dataset.data, 'New client with datatset');
+test('Order by a column', async (t) => {
+  const CMSClient = createClient('5fr6-cch3', {
+    output: 'json',
+    includeMetadata: true,
+  });
+
+  const dataset = await CMSClient.order('nppes_provider_state').get();
+  t.ok(dataset.data, 'Returns all records ordered by a column');
+  t.end();
 });

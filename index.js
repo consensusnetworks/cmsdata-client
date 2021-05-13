@@ -2,10 +2,10 @@ const fetch = require('cross-fetch');
 
 class CMSClient {
   /**
-  * Create a client
-  * @param {string} resourceId - Dataset resource id
-  * @param {object} options - Fetch options
-  */
+   * Create a client
+   * @param {string} resourceId - Dataset resource id
+   * @param {object} options - Fetch options
+   */
   constructor(resourceId, options) {
     this.resourceId = resourceId;
     this.isOutdated = false;
@@ -18,6 +18,7 @@ class CMSClient {
       filter: '',
       limit: 0,
       resource: '',
+      order: '',
     };
     this.fetched = {
       metadata: {},
@@ -27,9 +28,9 @@ class CMSClient {
   }
 
   /**
-  * Select columns
-  * @param {string} columns - Selected column(s), similar to `SELECT` in SQL
-  */
+   * Select columns
+   * @param {(string|string[])} columns - Selected column(s), similar to `SELECT` in SQL
+   */
   select(columns) {
     if (typeof columns === 'string') {
       this.fetchOptions.columns = columns;
@@ -43,12 +44,15 @@ class CMSClient {
   }
 
   /**
-  * Filter by a record, similar to `WHERE` in SQL
-  * @param {string} column - Target column
-  * @param {string} resource - Target resource
-  */
+   * Filter by a record, similar to `WHERE` in SQL
+   * @param {string} column - Target column
+   * @param {string} resource - Target resource
+   */
   filter(column, resource) {
-    if (!resource || !column) throw new Error('Missing params: include column & resource to be filtered');
+    if (!resource || !column)
+      throw new Error(
+        'Missing params: include column & resource to be filtered',
+      );
     this.fetchOptions = {
       column,
       resource,
@@ -57,12 +61,27 @@ class CMSClient {
   }
 
   /**
-  * Limit the amount of records to return
-  * @param {number} number - Number of records to return, similar to `LIMIT` in SQL
-  */
+   * Limit the amount of records to return
+   * @param {number} number - Number of records to return, similar to `LIMIT` in SQL
+   */
   limit(limitResource) {
     if (limitResource) {
       this.fetchOptions.limit = limitResource;
+    }
+    return this;
+  }
+  /**
+   * Sort records by column(s) in ascending order
+   * @param {(string|string[])} columns - Selected column(s) to sort by, similar to `ORDER` in SQL
+   */
+  order(columns) {
+    if (typeof columns === 'string') {
+      this.fetchOptions.order = columns;
+      return this;
+    }
+    if (Array.isArray(columns)) {
+      this.fetchOptions.order = columns.join();
+      return this;
     }
     return this;
   }
@@ -76,7 +95,9 @@ class CMSClient {
     }
 
     if (this.fetchOptions.filter !== '' && this.fetchOptions.resource !== '') {
-      this.url = this.url.concat(`&${this.fetchOptions.column}=${this.fetchOptions.resource}`);
+      this.url = this.url.concat(
+        `&${this.fetchOptions.column}=${this.fetchOptions.resource}`,
+      );
     }
 
     if (this.fetchOptions.columns !== '') {
@@ -86,6 +107,14 @@ class CMSClient {
         this.url = this.url.concat(`&$select=${this.fetchOptions.columns}`);
       }
     }
+
+    if (this.fetchOptions.order !== '') {
+      if (this.url[this.url.length - 1] === '?') {
+        this.url = this.url.concat(`$order=${this.fetchOptions.order}`);
+      } else {
+        this.url = this.url.concat(`&$order=${this.fetchOptions.order}`);
+      }
+    }
   }
 
   async _fetchResource() {
@@ -93,13 +122,13 @@ class CMSClient {
       const resourceData = await fetch(this.url);
       const headers = await resourceData.headers;
 
-      this.fetched.fields = JSON.parse(headers.get('x-soda2-fields').split(','));
+      this.fetched.fields = JSON.parse(
+        headers.get('x-soda2-fields').split(','),
+      );
       this.isOutdated = headers.get('x-soda2-data-out-of-date');
       this.lastModified = headers.get('Last-Modified');
 
-      if (this.fetchOptions.includeMetadata) {
-        await this._fetchResourceMetadata();
-      }
+      await this._fetchResourceMetadata();
 
       switch (this.type) {
         case 'csv':
@@ -118,41 +147,40 @@ class CMSClient {
     try {
       const metadataUrl = `https://data.cms.gov/api/views/metadata/v1/${this.resourceId}`;
       const metadata = await fetch(metadataUrl);
-      this.fetched.metadata = await metadata.json();
+      if (this.fetchOptions.includeMetada)
+        this.fetched.metadata = await metadata.json();
     } catch (error) {
       throw new Error(error);
     }
   }
 
   /**
-  * Get dataset from specified resource
-  *
-  * @async
-  * @function get
-  * @return {Promise<object>} Resolves to an object containing: data, fields, metadata
-  */
+   * Get dataset from specified resource
+   *
+   * @async
+   * @function get
+   * @return {Promise<object>} Resolves to an object containing: data, fields, metadata
+   */
   async get() {
     this._queryBuilder();
     await this._fetchResource();
 
-    if (!this.fetched) {
-      throw new Error('Data not fetched');
-    }
-
     if (!this.isOutdated) {
-      // eslint-disable-next-line no-console
       console.warn('Data is outdated');
     }
+
+    if (!this.fetchOptions.includeMetada) delete this.fetched.metadata;
     return this.fetched;
   }
 }
 /**
-*
-* @function createClient
-* @return {Class} New client instance
-*/
+ *
+ * @function createClient
+ * @return {Class} New client instance
+ */
 function createClient(resourceId, options) {
-  if (!resourceId || typeof resourceId !== 'string') throw Error(`Invalid argument: ${resourceId}`);
+  if (!resourceId || typeof resourceId !== 'string')
+    throw Error(`Invalid argument: ${resourceId}`);
   return new CMSClient(resourceId, options);
 }
 
