@@ -130,6 +130,8 @@ class CMSClient {
 
       await this._fetchResourceMetadata();
 
+      if (!this.fetchOptions.includeMetadata) delete this.fetched.metadata;
+
       switch (this.type) {
         case 'csv':
           this.fetched.data = await resourceData.text();
@@ -147,8 +149,7 @@ class CMSClient {
     try {
       const metadataUrl = `https://data.cms.gov/api/views/metadata/v1/${this.resourceId}`;
       const metadata = await fetch(metadataUrl);
-      if (this.fetchOptions.includeMetada)
-        this.fetched.metadata = await metadata.json();
+      this.fetched.metadata = await metadata.json();
     } catch (error) {
       throw new Error(error);
     }
@@ -169,7 +170,6 @@ class CMSClient {
       console.warn('Data is outdated');
     }
 
-    if (!this.fetchOptions.includeMetada) delete this.fetched.metadata;
     return this.fetched;
   }
 }

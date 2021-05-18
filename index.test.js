@@ -1,15 +1,23 @@
 const { test } = require('tap');
 const { createClient } = require('./index');
 
-test('Query all records', async (t) => {
+test('Query all records with metadata', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',
     includeMetadata: true,
   });
 
   const dataset = await CMSClient.select().get();
+  t.ok(dataset.data, 'Returns all records with metadata');
+});
 
-  t.ok(dataset.data, 'Returns all records');
+test('Query all records without metadata', async (t) => {
+  const CMSClient = createClient('5fr6-cch3', {
+    output: 'json',
+  });
+
+  const dataset = await CMSClient.select().get();
+  t.ok(dataset.data, 'Returns all records without metadata');
 });
 
 test('Query all records with a selected column', async (t) => {
@@ -19,7 +27,6 @@ test('Query all records with a selected column', async (t) => {
   });
 
   const dataset = await CMSClient.select('nppes_provider_first_name').get();
-
   t.ok(dataset.data, 'Returns all records with a selected column');
 });
 
