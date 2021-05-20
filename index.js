@@ -122,22 +122,26 @@ class CMSClient {
       const resourceData = await fetch(this.url);
       const headers = await resourceData.headers;
 
-      this.fetched.fields = JSON.parse(
-        headers.get('x-soda2-fields').split(','),
-      );
+      if (headers.get('x-soda2-fields')) {
+        this.fetched.fields = JSON.parse(
+          headers.get('x-soda2-fields').split(','),
+        );
+      }
+
       this.isOutdated = headers.get('x-soda2-data-out-of-date');
       this.lastModified = headers.get('Last-Modified');
 
       await this._fetchResourceMetadata();
 
-      if (!this.fetchOptions.includeMetadata) delete this.fetched.metadata;
-
-      switch (this.type) {
+      switch (this.fetchOptions.output) {
         case 'csv':
           this.fetched.data = await resourceData.text();
           return;
         default:
           this.fetched.data = await resourceData.json();
+          if (!this.fetched.fields.length) {
+            this.fetched.fields = Object.keys(this.fetched.data[0]);
+          }
           return;
       }
     } catch (error) {
@@ -169,6 +173,8 @@ class CMSClient {
     if (!this.isOutdated) {
       console.warn('Data is outdated');
     }
+
+    if (!this.fetchOptions.includeMetadata) delete this.fetched.metadata;
 
     return this.fetched;
   }
