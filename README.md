@@ -77,7 +77,7 @@ console.log(dataset.data)
 ```
 
 
-### Specifiy a column to return
+### Specifiy a column
 
 ```javascript
 const { createClient } = require('cmsdata-client');
@@ -93,7 +93,7 @@ const dataset = await CMSClient.limit().select("nppes_provider_first_name").get(
 console.log(dataset.data)
 ```
 
-### Specifiy multiple columns to return
+### Specifiy multiple columns
 
 ```javascript
 const { createClient } = require('cmsdata-client');

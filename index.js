@@ -122,20 +122,26 @@ class CMSClient {
       const resourceData = await fetch(this.url);
       const headers = await resourceData.headers;
 
-      this.fetched.fields = JSON.parse(
-        headers.get('x-soda2-fields').split(','),
-      );
+      if (headers.get('x-soda2-fields')) {
+        this.fetched.fields = JSON.parse(
+          headers.get('x-soda2-fields').split(','),
+        );
+      }
+
       this.isOutdated = headers.get('x-soda2-data-out-of-date');
       this.lastModified = headers.get('Last-Modified');
 
       await this._fetchResourceMetadata();
 
-      switch (this.type) {
+      switch (this.fetchOptions.output) {
         case 'csv':
           this.fetched.data = await resourceData.text();
           return;
         default:
           this.fetched.data = await resourceData.json();
+          if (!this.fetched.fields.length) {
+            this.fetched.fields = Object.keys(this.fetched.data[0]);
+          }
           return;
       }
     } catch (error) {
@@ -147,8 +153,7 @@ class CMSClient {
     try {
       const metadataUrl = `https://data.cms.gov/api/views/metadata/v1/${this.resourceId}`;
       const metadata = await fetch(metadataUrl);
-      if (this.fetchOptions.includeMetada)
-        this.fetched.metadata = await metadata.json();
+      this.fetched.metadata = await metadata.json();
     } catch (error) {
       throw new Error(error);
     }
@@ -169,7 +174,8 @@ class CMSClient {
       console.warn('Data is outdated');
     }
 
-    if (!this.fetchOptions.includeMetada) delete this.fetched.metadata;
+    if (!this.fetchOptions.includeMetadata) delete this.fetched.metadata;
+
     return this.fetched;
   }
 }
