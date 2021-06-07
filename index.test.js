@@ -11,6 +11,13 @@ test('Query all records with metadata', async (t) => {
   t.ok(dataset.data, 'Returns all records with metadata');
 });
 
+test('Query all records without options', async (t) => {
+  const CMSClient = createClient('5fr6-cch3');
+
+  const dataset = await CMSClient.select().get();
+  t.ok(dataset.data, 'Returns all records with metadata');
+});
+
 test('Query all records without metadata', async (t) => {
   const CMSClient = createClient('5fr6-cch3', {
     output: 'json',

@@ -12,7 +12,7 @@
     "test": "tap --no-coverage --reporter=specy -J",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
-    "test:report": "tap --coverage-report=html index.test.js",
+    "test:report": "tap --coverage-report=html index.test.js"
   },
   "keywords": [
     "cms",
@@ -22,13 +22,13 @@
   "author": "Consensus Networks",
   "license": "MIT",
   "dependencies": {
-    "cross-fetch": "^3.1.4"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "jsdoc": "^3.6.6",
+    "jsdoc": "^3.6.7",
     "prettier": "^2.2.1",
     "tap": "^15.0.6"
   }
