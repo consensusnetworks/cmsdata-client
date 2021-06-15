@@ -1,7 +1,4 @@
 const fetch = require('node-fetch');
-const crossFetch = require('cross-fetch');
-const isNode = require('detect-node');
-
 class CMSClient {
   /**
    * Create a client
@@ -130,14 +127,10 @@ class CMSClient {
   async _fetchResource() {
     let resourceData;
     try {
-      if (isNode) {
-        resourceData = await fetch(this.url);
+      resourceData = await fetch(this.url);
 
-        if (this.fetchOptions.stream && this._isSafeToStream()) {
-          await resourceData.body.pipe(this.fetchOptions.stream);
-        }
-      } else {
-        resourceData = await crossFetch(this.url);
+      if (this.fetchOptions.stream && this._isSafeToStream()) {
+        await resourceData.body.pipe(this.fetchOptions.stream);
       }
 
       const headers = await resourceData.headers;
