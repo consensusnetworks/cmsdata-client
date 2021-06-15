@@ -1,4 +1,6 @@
 const fetch = require('node-fetch');
+const crossFetch = require('cross-fetch');
+const isNode = require('detect-node');
 
 class CMSClient {
   /**
@@ -120,18 +122,22 @@ class CMSClient {
 
   async _isSafeToStream() {
     return (
-      this.fetchOptions.stream &&
       this.fetchOptions.stream.writable &&
       typeof this.fetchOptions.stream.pipe === 'function'
     );
   }
 
   async _fetchResource() {
+    let resourceData;
     try {
-      const resourceData = await fetch(this.url);
+      if (isNode) {
+        resourceData = await fetch(this.url);
 
-      if (this.fetchOptions.stream && this._isSafeToStream()) {
-        await resourceData.body.pipe(this.fetchOptions.stream);
+        if (this.fetchOptions.stream && this._isSafeToStream()) {
+          await resourceData.body.pipe(this.fetchOptions.stream);
+        }
+      } else {
+        resourceData = await crossFetch(this.url);
       }
 
       const headers = await resourceData.headers;
@@ -155,7 +161,7 @@ class CMSClient {
             this.fetched.fields = Object.keys(this.fetched.data[0]);
           }
       }
-      await this._fetchResourceMetadata();
+      await this._fetchResourceMetadata().catch((error) => console.warn(error));
     } catch (error) {
       throw new Error(error);
     }

@@ -111,6 +111,7 @@ test('Stream response body to stream destination', async (t) => {
   });
 
   const dataset = await CMSClient.get();
+  t.ok(dataset.data, 'Streams response body to file destinaton');
 
   t.teardown(() => {
     fs.unlink(path.join(process.cwd(), 'streamed.json'), (error) => {
@@ -119,6 +120,6 @@ test('Stream response body to stream destination', async (t) => {
       }
     });
   });
-  t.ok(dataset.data, 'Streams response body to file destinaton');
+
   t.end();
 });
