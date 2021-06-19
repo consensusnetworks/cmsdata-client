@@ -4,3 +4,4 @@ docs
 coverage
 node_modules
 .vscode
+build/index.js

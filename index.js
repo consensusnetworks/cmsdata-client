@@ -1,5 +1,4 @@
-const fetch = require('cross-fetch');
-
+const fetch = require('node-fetch');
 class CMSClient {
   /**
    * Create a client
@@ -10,7 +9,8 @@ class CMSClient {
     this.resourceId = resourceId;
     this.isOutdated = false;
     this.lastModified = '';
-    this.type = options.output || 'json';
+    this.type =
+      options && typeof options.output === 'string' ? options.output : 'json';
     this.url = `https://data.cms.gov/resource/${this.resourceId}.${this.type}`;
     this.fetchOptions = {
       ...options,
@@ -117,9 +117,22 @@ class CMSClient {
     }
   }
 
+  async _isSafeToStream() {
+    return (
+      this.fetchOptions.stream.writable &&
+      typeof this.fetchOptions.stream.pipe === 'function'
+    );
+  }
+
   async _fetchResource() {
+    let resourceData;
     try {
-      const resourceData = await fetch(this.url);
+      resourceData = await fetch(this.url);
+
+      if (this.fetchOptions.stream && this._isSafeToStream()) {
+        await resourceData.body.pipe(this.fetchOptions.stream);
+      }
+
       const headers = await resourceData.headers;
 
       if (headers.get('x-soda2-fields')) {
@@ -131,8 +144,6 @@ class CMSClient {
       this.isOutdated = headers.get('x-soda2-data-out-of-date');
       this.lastModified = headers.get('Last-Modified');
 
-      await this._fetchResourceMetadata();
-
       switch (this.fetchOptions.output) {
         case 'csv':
           this.fetched.data = await resourceData.text();
@@ -142,8 +153,8 @@ class CMSClient {
           if (!this.fetched.fields.length) {
             this.fetched.fields = Object.keys(this.fetched.data[0]);
           }
-          return;
       }
+      await this._fetchResourceMetadata().catch((error) => console.warn(error));
     } catch (error) {
       throw new Error(error);
     }
@@ -179,6 +190,7 @@ class CMSClient {
     return this.fetched;
   }
 }
+
 /**
  *
  * @function createClient
