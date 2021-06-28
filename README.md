@@ -115,11 +115,11 @@ const { createClient } = require('cmsdata-client');
 const CMSClient = createClient("5fr6-cch3", {
   output: "csv",
   includeMetadata: true,
-  stream
+  stream: require('fs').fs.createWriteStream("path-to-file")
  })
 
-const dataset = await CMSClient.select(["nppes_provider_first_name", 'npi']).get()
-
+await CMSClient.select(["nppes_provider_first_name", 'npi']).get()
+```
 ## API
 
  - `createClient`
@@ -138,7 +138,7 @@ const dataset = await CMSClient.select(["nppes_provider_first_name", 'npi']).get
 	- `number`: `number`
 - `get`
 	- `data`: json | csv
-	- `fields`: Header column (first row)
+	- `fields`: header column (first row)
 	- `metadata`: metadata of the dataset, **available only if `includeMetadata` is `true`**
 
 

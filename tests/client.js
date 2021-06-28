@@ -20,6 +20,7 @@ tap.test('Client options', async (t) => {
     t.equal(dataset.metadata.id, t.datasetId, 'returns metadata');
     t.same(dataset.data[0], jsonDataset[0], 'returns all records');
   });
+
   t.test('Without metadata', async (t) => {
     const CMSClient = createClient(t.datasetId, {
       output: 'json',
@@ -30,6 +31,7 @@ tap.test('Client options', async (t) => {
     }
     t.same(dataset.data[0], jsonDataset[0], 'returns all records');
   });
+
   t.test('Without options', async (t) => {
     const CMSClient = createClient(t.datasetId);
 
@@ -80,11 +82,24 @@ tap.test('Query options', async (t) => {
       includeMetadata: true,
     });
 
-    const dataset = await CMSClient.select([
-      'npi',
-      'nppes_provider_first_name',
-    ]).get();
-    t.ok(dataset.data, 'returns selected columns');
+    const wanted = jsonDataset.map((record) => {
+      if (record['nppes_provider_first_name']) {
+        return {
+          npi: record.npi,
+          nppes_provider_first_name: record.nppes_provider_first_name,
+        };
+      } else {
+        return {
+          npi: record.npi,
+        };
+      }
+    });
+
+    const dataset = await CMSClient.select(['npi', 'nppes_provider_first_name'])
+      .limit(50)
+      .get();
+
+    t.same(dataset.data, wanted, 'returns selected columns');
   });
 
   t.test('With limit', async (t) => {
@@ -102,7 +117,8 @@ tap.test('Query options', async (t) => {
       includeMetadata: true,
     });
 
-    const dataset = await CMSClient.order('nppes_provider_state').get();
+    const dataset = await CMSClient.order('nppes_provider_last_org_name').get();
+
     t.ok(dataset.data, 'returns records ordered by a column');
     t.end();
   });
@@ -121,11 +137,10 @@ tap.test('Query options', async (t) => {
       'nppes_provider_first_name',
       'THOMAS',
     )
-      .limit(50)
+      .limit(2)
       .get();
 
-    t.same(dataset.data[1], wanted[1], 'returns filtered resource');
-
+    t.same(dataset.data, wanted, 'returns filtered resource');
     t.end();
   });
 });
@@ -142,13 +157,12 @@ tap.test('Stream option', async (t) => {
 
   await CMSClient.select('nppes_provider_first_name').limit(50).get();
 
-  streamDestination.on('data', (e) => console.log(e));
-
   const streamedData = require(path.join(
     process.cwd(),
     'tests',
     'streamed.json',
   ));
+
   t.ok(streamedData, 'streams content to writable destination');
 
   t.teardown(() => {
@@ -158,6 +172,5 @@ tap.test('Stream option', async (t) => {
       }
     });
   });
-
   t.end();
 });
