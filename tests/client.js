@@ -106,6 +106,28 @@ tap.test('Query options', async (t) => {
     t.ok(dataset.data, 'returns records ordered by a column');
     t.end();
   });
+
+  t.test('Filter by resource', async (t) => {
+    const CMSClient = createClient(t.datasetId, {
+      output: 'json',
+      includeMetadata: true,
+    });
+
+    const wanted = jsonDataset.filter(
+      (record) => record['nppes_provider_first_name'] == 'THOMAS',
+    );
+
+    const dataset = await CMSClient.filter(
+      'nppes_provider_first_name',
+      'THOMAS',
+    )
+      .limit(50)
+      .get();
+
+    t.same(dataset.data[1], wanted[1], 'returns filtered resource');
+
+    t.end();
+  });
 });
 
 tap.test('Stream option', async (t) => {

@@ -14,10 +14,12 @@ class CMSClient {
     this.url = `https://data.cms.gov/resource/${this.resourceId}.${this.type}`;
     this.fetchOptions = {
       ...options,
-      columns: '',
-      filter: '',
+      select: '',
+      filter: {
+        column: '',
+        resource: '',
+      },
       limit: 0,
-      resource: '',
       order: '',
     };
     this.fetched = {
@@ -29,15 +31,15 @@ class CMSClient {
 
   /**
    * Select columns
-   * @param {(string|string[])} columns - Selected column(s), similar to `SELECT` in SQL
+   * @param {(string|[]string)} columns - Selected column(s), similar to `SELECT` in SQL
    */
   select(columns) {
     if (typeof columns === 'string') {
-      this.fetchOptions.columns = columns;
+      this.fetchOptions.select = columns;
       return this;
     }
     if (Array.isArray(columns)) {
-      this.fetchOptions.columns = columns.join();
+      this.fetchOptions.select = Array.from(new Set(columns)).join();
       return this;
     }
     return this;
@@ -53,7 +55,7 @@ class CMSClient {
       throw new Error(
         'Missing params: include column & resource to be filtered',
       );
-    this.fetchOptions = {
+    this.fetchOptions.filter = {
       column,
       resource,
     };
@@ -65,14 +67,17 @@ class CMSClient {
    * @param {number} number - Number of records to return, similar to `LIMIT` in SQL
    */
   limit(limitResource) {
-    if (limitResource) {
-      this.fetchOptions.limit = limitResource;
-    }
+    if (typeof limitResource !== 'number')
+      throw new Error(
+        `Expected argument of type number, recieved type: ${typeof limitResource}`,
+      );
+    this.fetchOptions.limit = limitResource;
     return this;
   }
+
   /**
    * Sort records by column(s) in ascending order
-   * @param {(string|string[])} columns - Selected column(s) to sort by, similar to `ORDER` in SQL
+   * @param {(string|[]string)} columns - Selected column(s) to sort by, similar to `ORDER` in SQL
    */
   order(columns) {
     if (typeof columns === 'string') {
@@ -80,12 +85,13 @@ class CMSClient {
       return this;
     }
     if (Array.isArray(columns)) {
-      this.fetchOptions.order = columns.join();
+      this.fetchOptions.order = new Set(columns).join();
       return this;
     }
-    return this;
+    throw new Error(
+      `Expected argument of type string or array, recieved type: ${typeof columns}`,
+    );
   }
-
   _queryBuilder() {
     this.url = this.url.concat('?');
 
@@ -93,21 +99,20 @@ class CMSClient {
       this.url = this.url.concat(`$limit=${this.fetchOptions.limit}`);
     }
 
-    if (this.fetchOptions.filter !== '' && this.fetchOptions.resource !== '') {
+    if (this.fetchOptions.filter.column && this.fetchOptions.filter.resource) {
       this.url = this.url.concat(
-        `&${this.fetchOptions.column}=${this.fetchOptions.resource}`,
+        `&${this.fetchOptions.filter.column}=${this.fetchOptions.filter.resource}`,
       );
     }
-
-    if (this.fetchOptions.columns !== '') {
+    if (this.fetchOptions.select) {
       if (this.url[this.url.length - 1] === '?') {
-        this.url = this.url.concat(`$select=${this.fetchOptions.columns}`);
+        this.url = this.url.concat(`$select=${this.fetchOptions.select}`);
       } else {
-        this.url = this.url.concat(`&$select=${this.fetchOptions.columns}`);
+        this.url = this.url.concat(`&$select=${this.fetchOptions.select}`);
       }
     }
 
-    if (this.fetchOptions.order !== '') {
+    if (this.fetchOptions.order) {
       if (this.url[this.url.length - 1] === '?') {
         this.url = this.url.concat(`$order=${this.fetchOptions.order}`);
       } else {
@@ -125,7 +130,6 @@ class CMSClient {
 
   async _fetchResource() {
     let resourceData;
-    console.log(this.url);
     try {
       resourceData = await fetch(this.url);
 
