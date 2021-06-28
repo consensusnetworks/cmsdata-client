@@ -89,7 +89,6 @@ class CMSClient {
   _queryBuilder() {
     this.url = this.url.concat('?');
 
-    // order of paramters does not matter here
     if (this.fetchOptions.limit > 0) {
       this.url = this.url.concat(`$limit=${this.fetchOptions.limit}`);
     }
@@ -126,6 +125,7 @@ class CMSClient {
 
   async _fetchResource() {
     let resourceData;
+    console.log(this.url);
     try {
       resourceData = await fetch(this.url);
 

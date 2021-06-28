@@ -12,7 +12,7 @@
     "test": "tap --no-coverage --reporter=specy -J",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
-    "test:report": "tap --coverage-report=html index.test.js"
+    "test:report": "tap --coverage-report=html"
   },
   "keywords": [
     "cms",
