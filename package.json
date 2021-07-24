@@ -13,7 +13,8 @@
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "test:report": "tap --coverage-report=html",
-	"build": "esbuild index.js --bundle --outfile=build/bundle.js --minify --sourcemap --target=chrome58,firefox57,safari11,edge16"
+    "build:browser": "esbuild index.js --bundle --outfile=build/bundle.js --minify --sourcemap --target=chrome58,firefox57,safari11,edge16",
+    "build:ts": "npx tsc"
   },
   "keywords": [
     "cms",
@@ -26,11 +27,14 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
+    "@types/node": "^16.4.2",
+    "@types/node-fetch": "^2.5.12",
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "jsdoc": "^3.6.7",
     "prettier": "^2.2.1",
-    "tap": "^15.0.6"
+    "tap": "^15.0.6",
+    "typescript": "^4.3.5"
   }
 }

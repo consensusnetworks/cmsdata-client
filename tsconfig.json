@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "allowJs": true,
+    "target": "es5",
+	"strict": true,
+	"noImplicitThis": true,
+	"sourceMap": true, 
+	"resolveJsonModule": true,
+	"noUnusedParameters": true, 
+	"noFallthroughCasesInSwitch": true,
+	"forceConsistentCasingInFileNames": true,
+  },
+  "include": ["./src/*"]
+}
