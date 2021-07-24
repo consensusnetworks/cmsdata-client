@@ -12,16 +12,17 @@
     "test": "tap --no-coverage --reporter=specy -J",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
-    "test:report": "tap --coverage-report=html"
+    "test:report": "tap --coverage-report=html",
+	"build": "esbuild index.js --bundle --outfile=build/bundle.js --minify --sourcemap --target=chrome58,firefox57,safari11,edge16"
   },
   "keywords": [
     "cms",
-    "cms client",
-    "medical data"
+    "cms client"
   ],
   "author": "Consensus Networks",
   "license": "MIT",
   "dependencies": {
+    "esbuild": "^0.12.15",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {

@@ -191,6 +191,8 @@ class CMSClient {
 
     if (!this.fetchOptions.includeMetadata) delete this.fetched.metadata;
 
+    console.log(this.url);
+
     return this.fetched;
   }
 }
