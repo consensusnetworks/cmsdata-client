@@ -59,13 +59,8 @@ class Client {
 	}
 
 	async get() {
-
-		// check if we already fetched the resource
-		if (this.result.data) {
-			return this.result;
-		}
-
-		await this.getResource()
+		const p = await Promise.all([this.getResource(), this.getResourceMetadata()])
+		console.log(p)
 		return this.result;
 	}
 
@@ -75,10 +70,26 @@ class Client {
 
 			if (res.status !== 200) {
 				this.result.error = new Error(`HTTP ${res.status}`);
-				return this.result;
+				return; 
 			}
 			const resource = await res.json()
 			this.result.data = resource
+			this.result.error = null
+		} catch (e: any) {
+			this.result.error = e;
+		}
+	}
+
+	private async getResourceMetadata() {
+		const metadataEndpoint = `https://data.cms.gov/data-api/v1/dataset/${this.dataset.identifier}/data-viewer/`
+		try {
+			const res = await fetch(metadataEndpoint, { method: this.options.method })
+			if (res.status !== 200) {
+				this.result.error = new Error(`HTTP ${res.status}`);
+				return; 
+			}
+			const resource = await res.json()
+			this.result.metadata = resource
 			this.result.error = null
 		} catch (e: any) {
 			this.result.error = e;

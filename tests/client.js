@@ -18,9 +18,8 @@ tap.test('Test ts lib', async (t) => {
     console.error(err);
   }
 
-  console.log(data);
-
-  t.pass('testing ts lib');
+  console.log('fetched ' + data.length + ' records');
+  t.pass('just pass for now');
 });
 
 //   t.test('Without metadata', async (t) => {

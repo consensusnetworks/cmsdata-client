@@ -13,7 +13,7 @@
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "test:report": "tap --coverage-report=html",
-    "build:browser": "esbuild index.js --bundle --outfile=build/bundle.js --minify --sourcemap --target=chrome58,firefox57,safari11,edge16",
+    "build:browser": "esbuild build/client.js --bundle --outfile=build/bundle.js --minify --sourcemap --target=chrome58,firefox57,safari11,edge16",
     "build:ts": "npx tsc"
   },
   "keywords": [
