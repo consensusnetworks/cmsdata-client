@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-
+import * as Papa from "papaparse";
 interface QueryParams {
 	filter?: string
 	limit?: number;
@@ -7,7 +7,6 @@ interface QueryParams {
 	order?: string;
 	sortBy?: string;
 }
-
 
 interface Dataset {
   identifier: string | string[];
@@ -26,14 +25,25 @@ type Result = {
 	metadata?: object;
 	error: Error | null;
 }
+interface Options {
+	output: 'csv' | 'json',
+	stream: NodeJS.WritableStream | null
+}
+
+interface transformer {
+	data: object[];
+	// extract from first object
+	fields?: string[];	
+}
 
 class Client {
 	query: QueryParams;
 	dataset: Dataset;
-	options: fetchOptions;
+	fetchOptions: fetchOptions;
 	result: Result;
+	options: Options;
 	
-	constructor(datasetId: Dataset['identifier']) {
+	constructor(datasetId: Dataset['identifier'], options: Options) {
 		this.result = {
 			data: "",
 			error: null
@@ -48,7 +58,7 @@ class Client {
 		this.dataset = {
 			identifier: datasetId
 		}
-		this.options = {
+		this.fetchOptions = {
 			url: `https://data.cms.gov/data-api/v1/dataset/${datasetId}/data`,
 			method: 'GET',
 			headers: {
@@ -56,24 +66,29 @@ class Client {
 			},
 			params: this.query
 		}
-	}
-
-	async get() {
-		const p = await Promise.all([this.getResource(), this.getResourceMetadata()])
-		console.log(p)
-		return this.result;
+		this.options = {
+			output: options ? options.output :'json',
+			stream: null,
+		}
 	}
 
 	private async getResource() {
 		try {
-			const res = await fetch(this.options.url, { method: this.options.method })
+			const res = await fetch(this.fetchOptions.url, { method: this.fetchOptions.method })
 
 			if (res.status !== 200) {
 				this.result.error = new Error(`HTTP ${res.status}`);
 				return; 
 			}
-			const resource = await res.json()
-			this.result.data = resource
+
+			if (this.options.output === 'csv') {
+				let transform = {
+					data: await res.json(),
+				} 
+				this.result.data = await this.JSONToCSV(transform)
+			} else {
+				this.result.data = await res.json()
+			}
 			this.result.error = null
 		} catch (e: any) {
 			this.result.error = e;
@@ -81,9 +96,9 @@ class Client {
 	}
 
 	private async getResourceMetadata() {
-		const metadataEndpoint = `https://data.cms.gov/data-api/v1/dataset/${this.dataset.identifier}/data-viewer/`
+		const viewerEndpoint = `https://data.cms.gov/data-api/v1/dataset/${this.dataset.identifier}/data-viewer/`
 		try {
-			const res = await fetch(metadataEndpoint, { method: this.options.method })
+			const res = await fetch(viewerEndpoint, { method: this.fetchOptions.method })
 			if (res.status !== 200) {
 				this.result.error = new Error(`HTTP ${res.status}`);
 				return; 
@@ -95,10 +110,26 @@ class Client {
 			this.result.error = e;
 		}
 	}
+
+	private JSONToCSV(t: transformer): string {
+		const p =  Papa.unparse(t.data, {
+			header: true,
+			skipEmptyLines: false,
+			newline: '\n',
+			delimiter: ',',
+		})
+		return p;
+	} 
+
+	async get() {
+		await this.getResource()
+		await this.getResourceMetadata()
+		return this.result;
+	}
 }
 
-function createClient(datasetId: Dataset['identifier']): Client {
-	return new Client(datasetId);
+function createClient(datasetId: Dataset['identifier'], options: Options): Client {
+	return new Client(datasetId, options);
 }
 
 module.exports = {
