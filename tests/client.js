@@ -22,5 +22,4 @@ tap.test('Test CMS Client', async (t) => {
   const found = result.data.slice(0, 10);
 
   t.same(found, wanted, 'should return correct dataset in json');
-  t.end();
 });

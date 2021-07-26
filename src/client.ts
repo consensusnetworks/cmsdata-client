@@ -126,8 +126,8 @@ class Client {
 	} 
 
 	async get() {	
-		Promise.allSettled([await this.getResource(), await this.getResourceMetadata()])
-		.catch(e => this.result.error = e )
+		await this.getResource()
+		await this.getResourceMetadata()
 		return this.result;
 	}
 }
