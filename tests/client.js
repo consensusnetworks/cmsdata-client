@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-
 const tap = require('tap');
 const { createClient } = require('../build/client');
 
@@ -17,9 +16,13 @@ tap.test('Test CMS Client', async (t) => {
     'utf8',
   );
 
-  // only first 10 records
-  const wanted = JSON.parse(file).slice(0, 10);
-  const found = result.data.slice(0, 10);
+  // only first 20 records
+  const wanted = JSON.parse(file).slice(0, 20);
+  const found = result.data.slice(0, 20);
 
-  t.same(found, wanted, 'should return correct dataset in json');
+  t.same(
+    found,
+    wanted,
+    'should return correct dataset in default format [json]',
+  );
 });
