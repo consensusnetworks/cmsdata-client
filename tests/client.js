@@ -1,4 +1,3 @@
-const os = require('os');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,9 +17,10 @@ tap.test('Test CMS Client', async (t) => {
     'utf8',
   );
 
-  // only first 10
+  // only first 10 records
   const wanted = JSON.parse(file).slice(0, 10);
   const found = result.data.slice(0, 10);
 
-  t.same(found, wanted);
+  t.same(found, wanted, 'should return correct dataset in json');
+  t.end();
 });

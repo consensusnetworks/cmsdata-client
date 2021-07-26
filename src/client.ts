@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import * as Papa from "papaparse";
+
 interface QueryParams {
 	filter?: string
 	limit?: number;
@@ -7,7 +8,6 @@ interface QueryParams {
 	order?: string;
 	sortBy?: string;
 }
-
 interface Dataset {
   identifier: string | string[];
   query?: QueryParams
@@ -25,6 +25,7 @@ type Result = {
 	metadata?: object;
 	error: Error | null;
 }
+
 interface Options {
 	output: 'csv' | 'json',
 	stream: NodeJS.WritableStream | null
@@ -32,7 +33,6 @@ interface Options {
 
 interface transformer {
 	data: object[];
-	// extract from first object
 	fields?: string[];	
 }
 
@@ -104,7 +104,11 @@ class Client {
 				return; 
 			}
 			const resource = await res.json()
-			this.result.metadata = resource
+
+			this.result.metadata = {
+				...resource.meta,
+				...resource.links
+			},
 			this.result.error = null
 		} catch (e: any) {
 			this.result.error = e;
@@ -121,9 +125,9 @@ class Client {
 		return p;
 	} 
 
-	async get() {
-		await this.getResource()
-		await this.getResourceMetadata()
+	async get() {	
+		Promise.allSettled([await this.getResource(), await this.getResourceMetadata()])
+		.catch(e => this.result.error = e )
 		return this.result;
 	}
 }
