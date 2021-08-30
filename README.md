@@ -1,13 +1,13 @@
-# CMS Data JS Client
+# CMS Data
 
-> JavaScript client for [Centers for Medicare & Medicaid Services Data API](https://www.cms.gov/)
+> JavaScript client for [Centers for Medicare & Medicaid Services Data API](https://data.cms.gov/)
 
 ## Install
 
 ```bash
 npm i cmsdata-client
-# yarn install cmsdata-client
 ```
+
 ## Usage
 
 ### Basic
@@ -15,130 +15,40 @@ npm i cmsdata-client
 ```javascript
 const { createClient } = require('cmsdata-client');
 
-const CMSClient = createClient("5fr6-cch3")
-const dataset = await CMSClient.get()
+const client = createClient('b8b0419c-3025-4738-8787-ed40c9e0816d');
+const result = await client.get();
 
+// check for error
+if (result.error) {
+  console.error(result.error);
+}
 // data
-console.log(dataset.data)
-
-// dataset headers
-console.log(dataset.fields)
-
-```
-### Include metadata and specify output
-
-```javascript
-const { createClient } = require('cmsdata-client');
-
-const CMSClient = createClient("5fr6-cch3", {
-  output: "csv",
-  includeMetadata: true,
- })
-
- const dataset = await CMSClient.get()
-
-// data
-console.log(dataset.data)
+console.log(dataset.data);
 
 // metadata
-console.log(dataset.metadata)
+console.log(dataset.metadata);
 ```
 
-### Filter by record
-
-```javascript
-const { createClient } = require('cmsdata-client');
-
-const CMSClient = createClient("5fr6-cch3", {
-  output: "csv",
-  includeMetadata: true,
- })
-
-const dataset = await CMSClient.filter("nppes_provider_last_org_name", "ENKESHAFI").get()
-
-// data
-console.log(dataset.data)
-```
-
-### Limit result
-
-```javascript
-const { createClient } = require('cmsdata-client');
-
-const CMSClient = createClient("5fr6-cch3", {
-  output: "csv",
-  includeMetadata: true,
- })
-
-const dataset = await CMSClient.limit(12).get()
-
-// data
-console.log(dataset.data)
-```
-
-
-### Specifiy a column
-
-```javascript
-const { createClient } = require('cmsdata-client');
-
-const CMSClient = createClient("5fr6-cch3", {
-  output: "csv",
-  includeMetadata: true,
- })
-
-const dataset = await CMSClient.limit().select("nppes_provider_first_name").get()
-
-// data
-console.log(dataset.data)
-```
-
-### Specifiy multiple columns
-
-```javascript
-const { createClient } = require('cmsdata-client');
-
-const CMSClient = createClient("5fr6-cch3", {
-  output: "csv",
-  includeMetadata: true,
- })
-
-const dataset = await CMSClient.select(["nppes_provider_first_name", 'npi']).get()
-
-// data
-console.log(dataset.data)
-```
 ## API
 
- - `createClient`
- 	- `resourceId`: `string`, **required**
- 	- `options`: `object`, optional
- 		- `includeMetadata`: `boolean`, defualt: `false`
- 		- `output`: `string`
-- `select`
-	- column(s): `string | string[]`
-- `filter`
-	- column: `string`
-	- resource: `string`
-- `order`
-	- column(s): `string | string[]`
-- `limit`
-	- `number`: `number`
-- `get`
-	- `data`: in **json** or **csv** format
-	- `fields`: dataset column headers
-	- `metadata`: metadata of the dataset, **available only if `includeMetadata` is `true`**
+- createClient:
 
+  - `dataset id`: `string`, **required**
+  - `options`: `object`, optional
+    - `output`: `string`
 
-More information on the [Socrata Open Data API](https://dev.socrata.com/)
+- get:
+
+  - returns dataset, metadata, and error messages if any
+
+  `{ data: {}, metadata: {}, err: "" }`
+
+More information on the [Drupal JSON:API module](https://www.drupal.org/docs/core-modules-and-themes/core-modules/jsonapi-module)
+
 ## Contributing
+
 1. Fork it.
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Commit your changes (`git commit -am 'Add some fooBar'`)
 4. Push to the branch (`git push origin feature/fooBar`)
 5. Create a new Pull Request
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
-
-  
